@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>五年級數學：表面積教學</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, "PingFang SC", "Microsoft JhengHei", sans-serif;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 1rem;
+      line-height: 1.7;
+      color: #2c3e50;
+      background: #f4f6f8;
+    }
+    .site-header {
+      text-align: center;
+      padding: 1rem 0 0.5rem;
+    }
+    .site-header h1 { margin: 0.3rem 0; font-size: 1.6rem; }
+    .site-header p { margin: 0.2rem 0; color: #7f8c8d; font-size: 0.9rem; }
+
+    /* ===== 分頁籤 ===== */
+    .tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.3rem;
+      justify-content: center;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background: #f4f6f8;
+      padding: 0.6rem 0;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+      margin-bottom: 1.2rem;
+    }
+    .tab-btn {
+      padding: 0.55rem 1rem;
+      background: #e8ebef;
+      color: #2c3e50;
+      border: none;
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 0.95rem;
+      font-family: inherit;
+      transition: background 0.2s, color 0.2s;
+    }
+    .tab-btn:hover { background: #d5dbе1; }
+    .tab-btn.active {
+      background: #3498db;
+      color: #fff;
+      font-weight: bold;
+    }
+    .tab-panel { display: none; animation: fadein 0.25s ease; }
+    .tab-panel.active { display: block; }
+    @keyframes fadein {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .container {
+      background: #ffffff;
+      padding: 2rem 2.5rem;
+      margin-bottom: 2rem;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+    .formula {
+      background: #ecf0f1;
+      padding: 0.8rem 1.2rem;
+      border-radius: 4px;
+      margin: 1rem 0;
+      font-family: "Courier New", monospace;
+      font-size: 0.95rem;
+      overflow-x: auto;
+    }
+    .problem {
+      margin: 1.2rem 0;
+      padding: 1rem;
+      background: #fafafa;
+      border-radius: 4px;
+      border-left: 4px solid #3498db;
+    }
+    .problem strong { color: #2c3e50; }
+    .problem input {
+      padding: 0.4rem 0.6rem;
+      font-size: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      margin-left: 0.5rem;
+    }
+    .problem button {
+      padding: 0.4rem 0.8rem;
+      background: #3498db;
+      color: #ffffff;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.95rem;
+      margin-left: 0.3rem;
+    }
+    .problem button:hover { background: #2980b9; }
+    .result { margin-top: 0.5rem; font-size: 0.95rem; }
+    .footer {
+      text-align: center;
+      font-size: 0.85rem;
+      color: #7f8c8d;
+      margin: 2rem 0;
+    }
+    .cube-img { max-width: 100%; height: auto; margin: 1rem 0; display: block; }
+    .tip {
+      background: #fff8e1;
+      border-left: 4px solid #f1c40f;
+      padding: 0.8rem 1rem;
+      border-radius: 4px;
+      margin: 1rem 0;
+    }
+    ul { padding-left: 1.4rem; }
+
+    /* ===== 小遊戲樣式 ===== */
+    .game-bar {
+      display: flex;
+      gap: 1.8rem;
+      background: #ecf0f1;
+      padding: 0.7rem 1rem;
+      border-radius: 4px;
+      margin: 0.8rem 0;
+      font-weight: bold;
+    }
+    #gOptions {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.6rem;
+      margin: 1rem 0;
+    }
+    .option-btn {
+      padding: 0.8rem;
+      font-size: 1.05rem;
+      border: 2px solid #3498db;
+      background: #fff;
+      color: #2c3e50;
+      border-radius: 6px;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .option-btn:hover:not(:disabled) { background: #d6eaf8; }
+    .option-btn:disabled { cursor: not-allowed; }
+    .option-btn.correct { background: #2ecc71; color: #fff; border-color: #27ae60; }
+    .option-btn.wrong { background: #e74c3c; color: #fff; border-color: #c0392b; }
+    .game-start, .game-end {
+      background: #ecf0f1;
+      padding: 1.2rem;
+      border-radius: 6px;
+      text-align: center;
+      margin: 1rem 0;
+    }
+  </style>
+</head>
+<body>
+
+<div class="site-header">
+  <h1>📐 五年級數學：表面積</h1>
+  <p>第九單元（L09）・點上方分頁籤切換單元</p>
+</div>
+
+<!-- ===== 分頁籤導覽列 ===== -->
+<nav class="tabs">
+  <button class="tab-btn active" onclick="switchTab(event,'home')">🏠 課程首頁</button>
+  <button class="tab-btn" onclick="switchTab(event,'cube')">🧊 認識正方體與長方體</button>
+  <button class="tab-btn" onclick="switchTab(event,'formula')">📏 表面積公式</button>
+  <button class="tab-btn" onclick="switchTab(event,'practice')">✏️ 練習題</button>
+  <button class="tab-btn" onclick="switchTab(event,'game')">🎮 表面積小遊戲</button>
+</nav>
+
+<!-- ===== 分頁 1：課程首頁 ===== -->
+<section id="home" class="tab-panel active">
+  <div class="container">
+    <h2>課程總覽</h2>
+    <p>歡迎來到五年級數學「表面積」單元的學習網站！本單元（第九單元 / L09）將帶你認識立體圖形及其表面積的計算方式。</p>
+    <ul>
+      <li><strong>🧊 認識正方體與長方體</strong>：了解正方體與長方體的外觀與六個面的特性。</li>
+      <li><strong>📏 表面積公式</strong>：學會「長×寬、寬×高、高×長」三組面的算法，再乘以 2。</li>
+      <li><strong>✏️ 練習題</strong>：動手算一算，並立即檢查答案。</li>
+      <li><strong>🎮 表面積小遊戲</strong>：限時挑戰計算表面積，看你能得幾分！</li>
+    </ul>
+    <div class="tip">
+      💡 <strong>學習建議</strong>：建議依照「認識正方體與長方體 → 公式 → 練習題」的順序學習，效果最好！
+    </div>
+  </div>
+</section>
+
+<!-- ===== 分頁 2：認識正方體與長方體 ===== -->
+<section id="cube" class="tab-panel">
+  <div class="container">
+    <h2>🧊 認識正方體與長方體</h2>
+    <p>兩種都是<strong>六個面</strong>的立體圖形，只是邊長的特性不同：</p>
+
+    <!-- 正方體圖示（Data URI 內嵌，離線可用） -->
+    <img class="cube-img" src="data:image/svg+xml,%3Csvg%20xmlns=%22http://www.w3.org/2000/svg%22%20width=%22240%22%20height=%22210%22%3E%3Cpolygon%20points=%2240,55%20110,25%20180,55%20110,85%22%20fill=%22%23A8D0F0%22%20stroke=%22%234A90E2%22%20stroke-width=%222%22/%3E%3Cpolygon%20points=%2240,55%20110,85%20110,175%2040,145%22%20fill=%22%237DB8E8%22%20stroke=%22%234A90E2%22%20stroke-width=%222%22/%3E%3Cpolygon%20points=%22110,85%20180,55%20180,145%20110,175%22%20fill=%22%23C7E2F7%22%20stroke=%22%234A90E2%22%20stroke-width=%222%22/%3E%3Ctext%20x=%22110%22%20y=%22200%22%20text-anchor=%22middle%22%20fill=%22%232C3E50%22%20font-size=%2214%22%3E正方體：每個邊都一樣長%3C/text%3E%3C/svg%3E" alt="正方體圖示">
+    <ul>
+      <li><strong>正方體</strong>：六個面都是<strong>完全相同的正方形</strong>，例如：骰子、魔術方塊。</li>
+      <li>只要知道<strong>一個邊長 a</strong>，就能推算其他所有邊。</li>
+    </ul>
+
+    <!-- 長方體圖示（Data URI 內嵌，離線可用） -->
+    <img class="cube-img" src="data:image/svg+xml,%3Csvg%20xmlns=%22http://www.w3.org/2000/svg%22%20width=%22260%22%20height=%22210%22%3E%3Cpolygon%20points=%2240,70%2080,35%20220,35%20180,70%22%20fill=%22%23A8D0F0%22%20stroke=%22%234A90E2%22%20stroke-width=%222%22/%3E%3Cpolygon%20points=%2240,70%20180,70%20180,160%2040,160%22%20fill=%22%237DB8E8%22%20stroke=%22%234A90E2%22%20stroke-width=%222%22/%3E%3Cpolygon%20points=%22180,70%20220,35%20220,125%20180,160%22%20fill=%22%23C7E2F7%22%20stroke=%22%234A90E2%22%20stroke-width=%222%22/%3E%3Ctext%20x=%22110%22%20y=%22195%22%20text-anchor=%22middle%22%20fill=%22%232C3E50%22%20font-size=%2214%22%3E長方體：長、寬、高不一定相同%3C/text%3E%3C/svg%3E" alt="長方體圖示">
+    <ul>
+      <li><strong>長方體</strong>：六個面都是長方形，由<strong>長、寬、高</strong>三個尺寸決定大小，例如：課本、鞋盒、磚塊。</li>
+      <li>兩者共同特性：相對的兩個面<strong>完全相同</strong>（面積一樣）。</li>
+      <li>共 6 個面：上面與下面、前面與後面、左面與右面。</li>
+    </ul>
+    <div class="tip">
+      💡 <strong>生活中的例子</strong>：骰子是正方體；橡皮擦、牛奶盒、冰箱、包裹紙箱是長方體——找找看你家中還有哪些？
+    </div>
+  </div>
+</section>
+
+<!-- ===== 分頁 3：表面積公式 ===== -->
+<section id="formula" class="tab-panel">
+  <div class="container">
+    <h2>📏 長方體與正方體的表面積公式</h2>
+    <div class="formula">
+      <strong>長方體的表面積公式：</strong><br>
+      表面積 = 2 ×（長×寬 + 寬×高 + 高×長）
+    </div>
+    <div class="formula">
+      <strong>正方體的表面積公式（特殊情況）：</strong><br>
+      表面積 = 邊長 × 邊長 × 6
+    </div>
+    <p>因為相對的兩面面積相同，長方體只要算出「上下面、前後面、左右面」三種面的面積，加起來再乘以 2，就是整個長方體的表面積；正方體則因為六個面完全相同，算出一個面再乘以 6 即可。</p>
+
+    <h3>例題</h3>
+    <div class="problem">
+      一個長方體的長 5 公分、寬 3 公分、高 4 公分，求其表面積。
+      <br><br>
+      <span class="formula">表面積 = 2 × (5×3 + 3×4 + 4×5) = 2 × (15 + 12 + 20) = 2 × 47 = 94（平方公分）</span>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 分頁 4：練習題 ===== -->
+<section id="practice" class="tab-panel">
+  <div class="container">
+    <h2>✏️ 練習題</h2>
+
+    <div class="problem">
+      <strong>第 1 題（你試試看）：</strong> 一個長方體的長 6 公分、寬 4 公分、高 2 公分，求表面積。
+      <br><br>
+      輸入答案：<input type="number" id="answer1" placeholder="你的答案">
+      <button class="btn" onclick="checkAnswer1()">檢查</button>
+      <span id="result1" class="result"></span>
+    </div>
+
+    <div class="problem">
+      <strong>第 2 題（挑戰題）：</strong> 一個長方體的表面積已知為 148 平方公分，如果長 7 公分、寬 3 公分，求高是多少？
+      <br><br>
+      <input type="number" id="answer2" placeholder="你的答案">（公分）
+      <button class="btn" onclick="checkAnswer2()">檢查</button>
+      <span id="result2" class="result"></span>
+    </div>
+
+    <div class="tip">
+      💡 <strong>小提示</strong>：第 2 題可以把「高」當作未知數，利用公式 148 = 2 × (7×3 + 3×高 + 高×7)，先算出已知部分，再求出高。
+    </div>
+  </div>
+</section>
+
+<!-- ===== 分頁 5：表面積小遊戲 ===== -->
+<section id="game" class="tab-panel">
+  <div class="container">
+    <h2>🎮 表面積小遊戲：限時挑戰</h2>
+    <p>在 <strong>60 秒</strong>內計算正方體與長方體的表面積，選出正確答案，每答對一題得 10 分，看看你能拿幾分！</p>
+
+    <div class="game-bar">
+      <span>⏱️ 剩餘時間：<span id="gTime">0</span> 秒</span>
+      <span>🏆 目前得分：<span id="gScore">0</span></span>
+    </div>
+
+    <div id="gStart" class="game-start">
+      <p>準備好了嗎？</p>
+      <button class="btn" onclick="startGame()">▶️ 開始挑戰</button>
+    </div>
+
+    <div id="gQuiz" class="game-quiz" style="display:none;">
+      <div class="problem">
+        <strong>題目：</strong><span id="gQText"></span>
+      </div>
+      <div id="gOptions"></div>
+      <div id="gMsg" class="result"></div>
+    </div>
+
+    <div id="gEnd" class="game-end" style="display:none;">
+      <p id="gEndMsg"></p>
+      <button class="btn" onclick="startGame()">🔄 再玩一次</button>
+    </div>
+
+    <div class="tip">
+      💡 <strong>小提示</strong>：先分清楚是正方體（表面積 = 邊長 × 邊長 × 6）還是長方體（表面積 = 2 ×（長×寬 + 寬×高 + 高×長）），算之前先想好用哪一條公式。
+    </div>
+  </div>
+</section>
+
+<div class="footer">
+  製作教學網站 | 所有圖片皆內嵌 Data URI，雙擊本檔案即可在離線狀態下完整觀看<br>
+  本網站僅作教育示範，不收集任何使用者資料
+</div>
+
+<script>
+  /* ===== 分頁切換 ===== */
+  function switchTab(evt, tabId) {
+    // 隱藏所有分頁內容
+    document.querySelectorAll('.tab-panel').forEach(function (p) {
+      p.classList.remove('active');
+    });
+    // 移除所有按鈕的 active
+    document.querySelectorAll('.tab-btn').forEach(function (b) {
+      b.classList.remove('active');
+    });
+    // 顯示選到的分頁
+    document.getElementById(tabId).classList.add('active');
+    evt.currentTarget.classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  /* ===== 練習題檢查 ===== */
+  function checkAnswer1() {
+    const answer = parseFloat(document.getElementById('answer1').value);
+    const result = document.getElementById('result1');
+    if (isNaN(answer)) {
+      result.textContent = '請輸入數字！';
+      result.style.color = 'orange';
+    } else {
+      // S = 2(6×4 + 4×2 + 2×6) = 2(24+8+12) = 88
+      if (answer === 88) {
+        result.innerHTML = '✅ 正確！表面積為 88 平方公分';
+        result.style.color = 'green';
+      } else {
+        result.innerHTML = '再試一次，正確答案是 88（平方公分）<br>計算過程：表面積 = 2 × (6×4 + 4×2 + 2×6) = 2 × (24 + 8 + 12) = 2 × 44 = 88';
+        result.style.color = '#e74c3c';
+      }
+    }
+  }
+
+  function checkAnswer2() {
+    const answer = parseFloat(document.getElementById('answer2').value);
+    const result = document.getElementById('result2');
+    if (isNaN(answer)) {
+      result.textContent = '請輸入數字！';
+      result.style.color = 'orange';
+      return;
+    }
+    // S = 2(lw + wh + hl) → 148 = 2(7×3 + 3h + 7h) → 74 = 21 + 10h → h = 5.3
+    if (Math.abs(answer - 5.3) < 0.01) {
+      result.innerHTML = '✅ 正確！高為 5.3 公分';
+      result.style.color = 'green';
+    } else {
+      result.innerHTML = '再試一次，正確答案是 5.3（公分）<br>解析過程：148 = 2 × (7×3 + 3×高 + 高×7) → 74 = 21 + 高×10 → 高 = (74−21)÷10 = 5.3';
+      result.style.color = '#e74c3c';
+    }
+  }
+  /* ===== 表面積小遊戲 ===== */
+  let gTimer = null, gLeft = 0, gScore = 0, gBest = 0, gLocked = false;
+  let gCorrect = 0, gExplanation = '';
+
+  function randInt(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  }
+
+  function startGame() {
+    gScore = 0;
+    gLeft = 60;
+    document.getElementById('gScore').textContent = gScore;
+    document.getElementById('gTime').textContent = gLeft;
+    document.getElementById('gStart').style.display = 'none';
+    document.getElementById('gEnd').style.display = 'none';
+    document.getElementById('gQuiz').style.display = 'block';
+    nextQuestion();
+    if (gTimer) clearInterval(gTimer);
+    gTimer = setInterval(tick, 1000);
+  }
+
+  function tick() {
+    gLeft--;
+    document.getElementById('gTime').textContent = gLeft;
+    if (gLeft <= 0) {
+      clearInterval(gTimer);
+      endGame();
+    }
+  }
+
+  function endGame() {
+    gLocked = true;
+    if (gScore > gBest) gBest = gScore;
+    document.getElementById('gQuiz').style.display = 'none';
+    document.getElementById('gEnd').style.display = 'block';
+    let praise;
+    if (gScore >= 100) praise = '太厲害了！你已經完全掌握表面積！🎉';
+    else if (gScore >= 60) praise = '表現很好，繼續保持！👍';
+    else if (gScore >= 30) praise = '不錯喔，再多練習一次會更好！';
+    else praise = '加油！先複習公式再回來挑戰。';
+    document.getElementById('gEndMsg').innerHTML =
+      '⏱️ 時間到！你得了 <strong>' + gScore + '</strong> 分。<br>' +
+      '本次最佳紀錄：' + gBest + ' 分<br>' + praise;
+  }
+
+  function nextQuestion() {
+    gLocked = false;
+    document.getElementById('gMsg').textContent = '';
+    const isCube = Math.random() < 0.3;
+    let sa, qText, explanation;
+    let dims = [];
+    if (isCube) {
+      const a = randInt(2, 9);
+      dims = [a, a, a];
+      qText = '一個正方體，邊長 ' + a + ' 公分，請問表面積是多少（平方公分）？';
+      sa = 6 * a * a;
+      explanation = '正方體公式：表面積 = 邊長 × 邊長 × 6 = ' + a + ' × ' + a + ' × 6 = ' + sa;
+    } else {
+      const l = randInt(2, 9), w = randInt(1, 9), h = randInt(1, 9);
+      dims = [l, w, h];
+      qText = '一個長方體，長 ' + l + ' 公分、寬 ' + w + ' 公分、高 ' + h + ' 公分，請問表面積是多少（平方公分）？';
+      sa = 2 * (l * w + w * h + h * l);
+      explanation = '長方體公式：表面積 = 2 × (' + l + '×' + w + ' + ' + w + '×' + h + ' + ' + h + '×' + l + ') = 2 × (' + (l*w) + ' + ' + (w*h) + ' + ' + (h*l) + ') = ' + sa;
+    }
+    document.getElementById('gQText').textContent = qText;
+    gCorrect = sa;
+    gExplanation = explanation;
+
+    // 產生 4 個選項（1 個正解 + 3 個干擾選項）
+    const sum = dims[0]*dims[1] + dims[1]*dims[2] + dims[2]*dims[0];
+    const set = new Set([sa]);
+    [sum, sa + dims[0], sa + 2, sa - 4].forEach(function (v) {
+      if (set.size < 4) set.add(v);
+    });
+    let k = 1;
+    while (set.size < 4) { set.add(sa + k * 10); k++; }
+    const opts = Array.from(set).sort(function (a, b) { return a - b; });
+
+    const optArea = document.getElementById('gOptions');
+    optArea.innerHTML = '';
+    opts.forEach(function (v) {
+      const btn = document.createElement('button');
+      btn.className = 'option-btn';
+      btn.textContent = v;
+      btn.onclick = function () { pick(btn, v); };
+      optArea.appendChild(btn);
+    });
+  }
+
+  function pick(btn, v) {
+    if (gLocked) return;
+    gLocked = true;
+    const msg = document.getElementById('gMsg');
+    document.querySelectorAll('.option-btn').forEach(function (b) {
+      b.disabled = true;
+      if (Number(b.textContent) === gCorrect) b.classList.add('correct');
+    });
+    if (v === gCorrect) {
+      gScore += 10;
+      msg.innerHTML = '✅ <strong>答對了！+10 分</strong><br>' + gExplanation;
+      msg.style.color = 'green';
+    } else {
+      btn.classList.add('wrong');
+      msg.innerHTML = '❌ 答錯了<br>' + gExplanation;
+      msg.style.color = '#e74c3c';
+    }
+    document.getElementById('gScore').textContent = gScore;
+    setTimeout(function () {
+      if (gLeft > 0) nextQuestion();
+    }, 1600);
+  }
+</script>
+
+</body>
+</html>
