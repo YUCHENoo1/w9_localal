@@ -156,6 +156,158 @@
       text-align: center;
       margin: 1rem 0;
     }
+
+    /* ===== 展開圖樣式 ===== */
+    .net-controls {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      align-items: center;
+      margin: 1rem 0;
+    }
+    .shape-btn {
+      padding: 0.5rem 1rem;
+      border: 2px solid #3498db;
+      background: #fff;
+      border-radius: 20px;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 0.95rem;
+      color: #2c3e50;
+    }
+    .shape-btn.active { background: #3498db; color: #fff; }
+    .net-toggle {
+      padding: 0.5rem 1rem;
+      background: #f39c12;
+      color: #fff;
+      border: none;
+      border-radius: 20px;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 0.95rem;
+      margin-left: auto;
+    }
+    .net-toggle:hover { background: #e67e22; }
+    /* ===== 展開圖（CSS 3D 摺紙動畫）樣式 ===== */
+    .net-stage {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 320px;
+      margin: 1rem 0;
+      perspective: 1100px;
+    }
+    .net-root {
+      position: relative;
+      transform-style: preserve-3d;
+      transform: rotateX(-18deg) rotateY(-28deg);
+      transition: transform 1s cubic-bezier(.4, 0, .25, 1);
+    }
+    .net-stage.unfolded .net-root { transform: rotateX(0deg) rotateY(0deg); }
+    .panel {
+      position: absolute;
+      transform-style: preserve-3d;
+      transition: transform 1s cubic-bezier(.4, 0, .25, 1);
+    }
+    .panel .face {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 17px;
+      font-weight: bold;
+      color: #2C3E50;
+      border: 2px solid #34495E;
+      box-sizing: border-box;
+      backface-visibility: hidden;
+    }
+    /* 各面的摺線位置（transform-origin）與摺疊角度 */
+    .p-top    { transform-origin: 50% 100%; transform: rotateX(90deg); }
+    .p-bottom { transform-origin: 50% 0%;   transform: rotateX(-90deg); }
+    .p-left   { transform-origin: 100% 50%; transform: rotateY(-90deg); }
+    .p-right  { transform-origin: 0% 50%;   transform: rotateY(90deg); }
+    .p-back   { transform-origin: 0% 50%;   transform: rotateY(90deg); transition-delay: 0.08s; }
+    .net-stage.unfolded .panel { transform: none; }
+    .net-stage.foldable { cursor: grab; touch-action: none; }
+    .net-root.dragging { transition: none; }
+
+    /* ===== 拖動教具樣式 ===== */
+    .puzzle-flex {
+      display: flex;
+      gap: 2rem;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: flex-start;
+      margin: 1rem 0;
+    }
+    .puzzle-col { text-align: center; }
+    .puzzle-tray {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+      width: 212px;
+      min-height: 204px;
+      padding: 10px;
+      background: #f0f3f6;
+      border: 2px dashed #b9c6d2;
+      border-radius: 8px;
+      margin-top: 0.5rem;
+    }
+    .puzzle-board {
+      display: grid;
+      grid-template-columns: repeat(4, 96px);
+      grid-template-rows: repeat(3, 96px);
+      grid-template-areas: ". t . ." "l f r b" ". bt . .";
+      gap: 6px;
+      width: max-content;
+      margin: 0.5rem auto 0;
+    }
+    .pz-slot {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 2px dashed #9db2c0;
+      border-radius: 6px;
+      background: #fbfdff;
+    }
+    .pz-hint { color: #b9c6d2; font-size: 15px; font-weight: bold; }
+    .pz-tile {
+      width: 88px;
+      height: 88px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 2px solid #34495E;
+      border-radius: 6px;
+      font-size: 16px;
+      font-weight: bold;
+      color: #2C3E50;
+      cursor: grab;
+      user-select: none;
+      touch-action: none;
+      box-shadow: 0 2px 5px rgba(0,0,0,.15);
+    }
+    .pz-tile.pz-in-slot {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      border-radius: 4px;
+      cursor: grab;
+      touch-action: none;
+    }
+    .pz-tile.dragging {
+      position: fixed;
+      z-index: 999;
+      cursor: grabbing;
+      box-shadow: 0 10px 22px rgba(0,0,0,.3);
+    }
+    .pz-slot.good { border-color: #27ae60; background: #eafff1; }
+    .pz-slot.bad { border-color: #e74c3c; background: #ffeceb; }
+    #pzMsg { min-height: 26px; font-weight: bold; text-align: center; }
   </style>
 </head>
 <body>
@@ -169,6 +321,7 @@
 <nav class="tabs">
   <button class="tab-btn active" onclick="switchTab(event,'home')">🏠 課程首頁</button>
   <button class="tab-btn" onclick="switchTab(event,'cube')">🧊 認識正方體與長方體</button>
+  <button class="tab-btn" onclick="switchTab(event,'net')">🧩 展開圖</button>
   <button class="tab-btn" onclick="switchTab(event,'formula')">📏 表面積公式</button>
   <button class="tab-btn" onclick="switchTab(event,'practice')">✏️ 練習題</button>
   <button class="tab-btn" onclick="switchTab(event,'game')">🎮 表面積小遊戲</button>
@@ -181,6 +334,7 @@
     <p>歡迎來到五年級數學「表面積」單元的學習網站！本單元（第九單元 / L09）將帶你認識立體圖形及其表面積的計算方式。</p>
     <ul>
       <li><strong>🧊 認識正方體與長方體</strong>：了解正方體與長方體的外觀與六個面的特性。</li>
+      <li><strong>🧩 展開圖</strong>：把立體圖形攤平，觀察六個面如何組成表面積。</li>
       <li><strong>📏 表面積公式</strong>：學會「長×寬、寬×高、高×長」三組面的算法，再乘以 2。</li>
       <li><strong>✏️ 練習題</strong>：動手算一算，並立即檢查答案。</li>
       <li><strong>🎮 表面積小遊戲</strong>：限時挑戰計算表面積，看你能得幾分！</li>
@@ -214,6 +368,64 @@
     <div class="tip">
       💡 <strong>生活中的例子</strong>：骰子是正方體；橡皮擦、牛奶盒、冰箱、包裹紙箱是長方體——找找看你家中還有哪些？
     </div>
+  </div>
+</section>
+
+<!-- ===== 分頁：展開圖 ===== -->
+<section id="net" class="tab-panel">
+  <div class="container">
+    <h2>🧩 展開圖：把六個面攤平來觀察</h2>
+    <p>先選長方體或正方體，再按「展開」！顏色相同的兩個面是<strong>一組</strong>（面積相同），整個立體共 <strong>6 個面</strong>，其實就是 <strong>3 組面</strong>。</p>
+
+    <div class="net-controls">
+      <button id="netBtnBox" class="shape-btn active" onclick="setNetShape('box')">▭ 長方體</button>
+      <button id="netBtnCube" class="shape-btn" onclick="setNetShape('cube')">◻ 正方體</button>
+      <button id="netAuto" class="shape-btn" onclick="toggleAutoPlay()">🔁 自動循環播放</button>
+      <button id="netToggle" class="net-toggle" onclick="toggleNet()">🖼️ 展開成展開圖</button>
+    </div>
+
+    <div id="netStage" class="net-stage" style="text-align:center;"></div>
+
+    <h3>👀 觀察重點</h3>
+    <ul>
+      <li><span style="color:#AED6F1;">■</span> <strong>藍色一組</strong>：上面與下面（每一面的面積 ＝ <strong>長×寬</strong>）</li>
+      <li><span style="color:#E67E22;">■</span> <strong>橙色一組</strong>：前面與後面（每一面的面積 ＝ <strong>長×高</strong>）</li>
+      <li><span style="color:#27AE60;">■</span> <strong>綠色一組</strong>：左面與右面（每一面的面積 ＝ <strong>寬×高</strong>）</li>
+    </ul>
+    <div class="formula">
+      表面積 = 2 ×（<span style="color:#2980b9;font-weight:bold;">長×寬</span> + <span style="color:#27ae60;font-weight:bold;">寬×高</span> + <span style="color:#e67e22;font-weight:bold;">高×長</span>）<br>
+      正方體：長＝寬＝高，三組面積都一樣，所以 表面積 = 邊長 × 邊長 × 6
+    </div>
+    <div class="tip">
+      💡 <strong>教學小提醒</strong>：請學生先把「成對的面」用顏色圈起來，再把三組的面積加起來×2，最後對照展開圖是否和算式一致。
+    </div>
+  </div>
+
+  <div class="container">
+    <h2>🧲 小教具：拼出正方體的展開圖</h2>
+    <p>把收納區裡的「面」拖到右邊的底板上（也可以拖回收納區或換位置），全部放好後按「✅ 檢查答案」。底板上的灰色字是提示。</p>
+    <div class="puzzle-flex">
+      <div class="puzzle-col">
+        <strong>收納區（拖我）</strong>
+        <div class="puzzle-tray" id="pzTray"></div>
+      </div>
+      <div class="puzzle-col">
+        <strong>展開圖底板</strong>
+        <div class="puzzle-board" id="pzBoard">
+          <div class="pz-slot" data-face="上" style="grid-area: t;"><span class="pz-hint">上</span></div>
+          <div class="pz-slot" data-face="左" style="grid-area: l;"><span class="pz-hint">左</span></div>
+          <div class="pz-slot" data-face="前" style="grid-area: f;"><span class="pz-hint">前</span></div>
+          <div class="pz-slot" data-face="右" style="grid-area: r;"><span class="pz-hint">右</span></div>
+          <div class="pz-slot" data-face="後" style="grid-area: b;"><span class="pz-hint">後</span></div>
+          <div class="pz-slot" data-face="下" style="grid-area: bt;"><span class="pz-hint">下</span></div>
+        </div>
+      </div>
+    </div>
+    <div style="text-align:center; margin-top: 1rem;">
+      <button class="net-toggle" style="margin:0;" onclick="checkPuzzle()">✅ 檢查答案</button>
+      <button class="shape-btn" style="margin-left:.4rem;" onclick="setupPuzzle()">🔄 重玩（重新洗牌）</button>
+    </div>
+    <div id="pzMsg" class="result"></div>
   </div>
 </section>
 
@@ -322,6 +534,18 @@
     document.getElementById(tabId).classList.add('active');
     evt.currentTarget.classList.add('active');
     window.scrollTo({ top: 0, behavior: 'smooth' });
+    if (tabId === 'net') maybeNetDemo();
+  }
+
+  /* 第一次進入「展開圖」分頁時，自動播放一次展開動畫 */
+  let netDemoDone = false;
+  function maybeNetDemo() {
+    if (netDemoDone || netUnfold) return;
+    netDemoDone = true;
+    setTimeout(function () {
+      const panel = document.getElementById('net');
+      if (panel.classList.contains('active') && !netUnfold) toggleNet();
+    }, 1200);
   }
 
   /* ===== 練習題檢查 ===== */
@@ -471,6 +695,243 @@
       if (gLeft > 0) nextQuestion();
     }, 1600);
   }
+
+  /* ===== 展開圖 ===== */
+  const NET_COLORS = { top: '#AED6F1', front: '#F5B7B1', side: '#ABEBC6' };
+  let netShape = 'box';
+  let netUnfold = false;
+
+  function foldPanel(cls, x, y, w, h, bg, label) {
+    return '<div class="panel ' + cls + '" style="left:' + x + 'px;top:' + y + 'px;width:' + w + 'px;height:' + h + 'px;">' +
+      '<div class="face" style="background:' + bg + ';">' + label + '</div>' +
+      '</div>';
+  }
+
+  /* 以 CSS 3D 摺疊呈現：「前」面固定，其餘五面沿摺線旋轉，
+     摺疊時聚合成 3D 立體，展開時攤平成十字形展開圖 */
+  function buildFoldRoot(shape) {
+    let frontW, frontH, D, W, H;
+    if (shape === 'cube') { frontW = 90; frontH = 90; D = 90; W = 470; H = 290; }
+    else { frontW = 130; frontH = 80; D = 55; W = 495; H = 245; }
+    const fx = 180, fy = 110;
+    let html = '<div class="net-root" style="width:' + W + 'px;height:' + H + 'px;">';
+    html += foldPanel('p-top', fx, fy - D, frontW, D, NET_COLORS.top, '上');
+    html += foldPanel('p-front', fx, fy, frontW, frontH, NET_COLORS.front, '前');
+    html += foldPanel('p-bottom', fx, fy + frontH, frontW, D, NET_COLORS.top, '下');
+    html += foldPanel('p-left', fx - D, fy, D, frontH, NET_COLORS.side, '左');
+    /* 「右」的面包住「後」，後面的摺線接在右面的外側邊，摺疊時才會拼成完整立體 */
+    html += '<div class="panel p-right" style="left:' + (fx + frontW) + 'px;top:' + fy + 'px;width:' + D + 'px;height:' + frontH + 'px;">'
+      + '<div class="face" style="background:' + NET_COLORS.side + ';">右</div>'
+      + '<div class="panel p-back" style="left:' + D + 'px;top:0;width:' + frontW + 'px;height:' + frontH + 'px;">'
+      + '<div class="face" style="background:' + NET_COLORS.front + ';">後</div>'
+      + '</div>'
+      + '</div>';
+    html += '</div>';
+    return html;
+  }
+
+  function renderNet() {
+    const stage = document.getElementById('netStage');
+    stage.classList.remove('unfolded');
+    stage.innerHTML = buildFoldRoot(netShape);
+    applyRoot(); /* 套用使用者拖曳旋轉的角度 */
+    stage.classList.toggle('foldable', !netUnfold);
+    void stage.offsetWidth; /* 重排，讓摺疊過渡動畫重新觸發 */
+    requestAnimationFrame(function () {
+      stage.classList.add('unfolded');
+    });
+  }
+
+  function setNetShape(shape) {
+    netShape = shape;
+    netUnfold = false;
+    stopAutoPlay(); /* 換圖形時停止自動播放 */
+    document.getElementById('netBtnCube').classList.toggle('active', shape === 'cube');
+    document.getElementById('netBtnBox').classList.toggle('active', shape !== 'cube');
+    updateNetButton();
+    renderNet();
+  }
+
+  function netFlip() {
+    netUnfold = !netUnfold;
+    updateNetButton();
+    renderNet();
+  }
+
+  function toggleNet() {
+    stopAutoPlay(); /* 手動操作時自動循環會先關閉 */
+    netFlip();
+  }
+
+  function updateNetButton() {
+    document.getElementById('netToggle').textContent = netUnfold ? '📦 摺回立體圖形' : '🖼️ 展開成展開圖';
+  }
+
+  /* ===== 自動循環播放：立體 ↔ 展開來回擺動 ===== */
+  let autoTimer = null;
+  function toggleAutoPlay() {
+    if (autoTimer) {
+      stopAutoPlay();
+    } else {
+      autoTimer = setInterval(function () { netFlip(); }, 2600);
+      document.getElementById('netAuto').classList.add('active');
+    }
+  }
+  function stopAutoPlay() {
+    if (autoTimer) {
+      clearInterval(autoTimer);
+      autoTimer = null;
+      document.getElementById('netAuto').classList.remove('active');
+    }
+  }
+
+  /* ===== 拖曳旋轉立體（滑鼠／觸控皆可） ===== */
+  let rotX = -18, rotY = -28;
+  function applyRoot() {
+    const root = document.querySelector('#netStage .net-root');
+    if (!root) return;
+    if (netUnfold) {
+      root.style.transform = ''; /* 展平時交給 CSS 控制角度 */
+    } else {
+      root.style.transform = 'rotateX(' + rotX + 'deg) rotateY(' + rotY + 'deg)';
+    }
+  }
+  (function initNetDrag() {
+    const stage = document.getElementById('netStage');
+    let drag = false, lastX = 0, lastY = 0;
+    stage.addEventListener('pointerdown', function (e) {
+      if (netUnfold) return; /* 展開圖狀態不旋轉，把畫面留給按鈕 */
+      drag = true;
+      lastX = e.clientX;
+      lastY = e.clientY;
+      const root = stage.querySelector('.net-root');
+      if (root) root.classList.add('dragging');
+      e.preventDefault();
+    });
+    window.addEventListener('pointermove', function (e) {
+      if (!drag) return;
+      rotY += (e.clientX - lastX) * 0.4;
+      rotX -= (e.clientY - lastY) * 0.4;
+      if (rotX > 90) rotX = 90;
+      if (rotX < -90) rotX = -90;
+      lastX = e.clientX;
+      lastY = e.clientY;
+      applyRoot();
+    });
+    window.addEventListener('pointerup', function () {
+      if (!drag) return;
+      drag = false;
+      const root = document.querySelector('#netStage .net-root');
+      if (root) root.classList.remove('dragging');
+    });
+  })();
+
+  /* ===== 拖動教具：拼出正方體展開圖 ===== */
+  const PZ_COLORS = {
+    '上': NET_COLORS.top, '下': NET_COLORS.top,
+    '前': NET_COLORS.front, '後': NET_COLORS.front,
+    '左': NET_COLORS.side, '右': NET_COLORS.side
+  };
+  let pzTile = null, pzOffX = 0, pzOffY = 0;
+
+  function pzShuffle(faceList) {
+    for (let i = faceList.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      const tmp = faceList[i];
+      faceList[i] = faceList[j];
+      faceList[j] = tmp;
+    }
+    return faceList;
+  }
+
+  function setupPuzzle() {
+    const tray = document.getElementById('pzTray');
+    const board = document.getElementById('pzBoard');
+    tray.querySelectorAll('.pz-tile').forEach(function (t) { t.remove(); });
+    board.querySelectorAll('.pz-tile').forEach(function (t) { t.remove(); });
+    tray.querySelectorAll('.pz-hint').forEach(function (h) { h.remove(); });
+    document.getElementById('pzMsg').textContent = '';
+    document.querySelectorAll('.pz-slot').forEach(function (s) { s.classList.remove('good', 'bad'); });
+    pzShuffle(['上', '前', '下', '左', '右', '後']).forEach(function (f) {
+      const tile = document.createElement('div');
+      tile.className = 'pz-tile';
+      tile.dataset.face = f;
+      tile.textContent = f;
+      tile.style.background = PZ_COLORS[f];
+      tile.addEventListener('pointerdown', pzStart);
+      tray.appendChild(tile);
+    });
+  }
+
+  function pzStart(e) {
+    pzTile = e.currentTarget;
+    const rect = pzTile.getBoundingClientRect();
+    pzOffX = e.clientX - rect.left - rect.width / 2;
+    pzOffY = e.clientY - rect.top - rect.height / 2;
+    pzTile.classList.remove('pz-in-slot');
+    pzTile.classList.add('dragging');
+    document.body.appendChild(pzTile);
+    pzMove(e);
+    document.getElementById('pzMsg').textContent = '';
+    e.preventDefault();
+  }
+
+  function pzMove(e) {
+    if (!pzTile) return;
+    pzTile.style.left = (e.clientX - pzOffX) + 'px';
+    pzTile.style.top = (e.clientY - pzOffY) + 'px';
+  }
+
+  function pzDrop(e) {
+    if (!pzTile) return;
+    const tile = pzTile;
+    pzTile = null;
+    tile.classList.remove('dragging');
+    tile.classList.remove('pz-in-slot');
+    tile.style.left = '';
+    tile.style.top = '';
+    tile.style.pointerEvents = 'none'; /* 讓 elementFromPoint 穿過被抓著的面 */
+    const hit = document.elementFromPoint(e.clientX, e.clientY);
+    tile.style.pointerEvents = '';
+    const slot = hit && hit.closest ? hit.closest('.pz-slot') : null;
+    if (slot && !slot.querySelector('.pz-tile')) {
+      slot.appendChild(tile);
+      tile.classList.add('pz-in-slot');
+    } else {
+      document.getElementById('pzTray').appendChild(tile);
+    }
+    document.querySelectorAll('.pz-slot').forEach(function (s) { s.classList.remove('good', 'bad'); });
+  }
+
+  function checkPuzzle() {
+    let good = 0;
+    document.querySelectorAll('.pz-slot').forEach(function (slot) {
+      const tile = slot.querySelector('.pz-tile');
+      const ok = tile && tile.dataset.face === slot.dataset.face;
+      slot.classList.remove('good', 'bad');
+      slot.classList.add(ok ? 'good' : 'bad');
+      if (ok) good++;
+    });
+    const msg = document.getElementById('pzMsg');
+    if (good === 6) {
+      msg.textContent = '🎉 太棒了！六個面都放對位置，正方體的展開圖拼出來了！';
+      msg.style.color = 'green';
+    } else {
+      msg.textContent = '目前已經放對 ' + good + ' 個面，紅框的位置再調整看看！';
+      msg.style.color = '#e74c3c';
+    }
+  }
+
+  /* 拖動事件：滑鼠與觸控統一使用 Pointer Events */
+  document.addEventListener('pointermove', function (e) {
+    if (pzTile) pzMove(e);
+  });
+  document.addEventListener('pointerup', pzDrop);
+  document.addEventListener('pointercancel', pzDrop);
+
+  /* 初始載入：先顯示長方體的立體圖形，並準備好拖動教具 */
+  setNetShape('box');
+  setupPuzzle();
 </script>
 
 </body>
